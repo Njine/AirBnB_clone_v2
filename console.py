@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
+import shlex
 import sys
 from models.base_model import BaseModel
 from models.__init__ import storage
@@ -113,21 +114,55 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
+    def do_create(self, line):
         """ Create an object of any class"""
-        if not args:
+        """Creates a new instance of BaseModel, saves it
+        Exceptions:
+            SyntaxError: when there is no args given
+            NameError: when there is no object taht has the name
+        """
+        try:
+            if not line:
+                raise SyntaxError()
+            
+            # Split the line into class name and parameters
+            parts = shlex.split(line)
+            
+            if not parts:
+                raise SyntaxError()
+            
+            class_name = parts[0]
+            if class_name not in self.classes:
+                raise NameError()
+            
+            # Create an instance of the class
+            obj = self.classes[class_name]()
+
+            # Parse and set the attributes
+            for param in parts[1:]:
+                key, value = param.split('=')
+
+                # Handle special cases for string, float, and integer values
+                if value.startswith('"') and value.endswith('"'):
+                    value = value[1:-1].replace('\\"', '"').replace('_', ' ')
+                elif '.' in value:
+                    value = float(value)
+                else:
+                    value = int(value)
+
+                setattr(obj, key, value)
+
+            obj.save()
+            print(obj.id)
+
+        except SyntaxError:
             print("** class name missing **")
-            return
-        elif args not in HBNBCommand.classes:
+        except NameError:
             print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
+        
         print("Creates a class of any type")
         print("[Usage]: create <className>\n")
 
