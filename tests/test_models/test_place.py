@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-"""test for place"""
+"""Test for Place"""
+
 import unittest
 import os
 from os import getenv
@@ -9,11 +10,11 @@ import pep8
 
 
 class TestPlace(unittest.TestCase):
-    """this will test the place class"""
+    """Test suite for the Place class"""
 
     @classmethod
     def setUpClass(cls):
-        """set up for test"""
+        """Set up for the test"""
         cls.place = Place()
         cls.place.city_id = "1234-abcd"
         cls.place.user_id = "4321-dcba"
@@ -28,71 +29,65 @@ class TestPlace(unittest.TestCase):
         cls.place.amenity_ids = ["1324-lksdjkl"]
 
     @classmethod
-    def teardown(cls):
-        """at the end of the test this will tear it down"""
+    def tearDownClass(cls):
+        """At the end of the test, tear it down"""
         del cls.place
 
     def tearDown(self):
-        """teardown"""
+        """Teardown"""
         try:
             os.remove("file.json")
         except Exception:
             pass
 
     def test_pep8_Place(self):
-        """Tests pep8 style"""
+        """Test PEP8 style"""
         style = pep8.StyleGuide(quiet=True)
-        p = style.check_files(['models/place.py'])
-        self.assertEqual(p.total_errors, 0, "fix pep8")
+        result = style.check_files(['models/place.py'])
+        self.assertEqual(result.total_errors, 0, "Fix PEP8")
 
-    def test_checking_for_docstring_Place(self):
-        """checking for docstrings"""
+    def test_docstring_Place(self):
+        """Check for docstrings"""
         self.assertIsNotNone(Place.__doc__)
 
     def test_attributes_Place(self):
-        """chekcing if amenity have attributes"""
-        self.assertTrue('id' in self.place.__dict__)
-        self.assertTrue('created_at' in self.place.__dict__)
-        self.assertTrue('updated_at' in self.place.__dict__)
-        self.assertTrue('city_id' in self.place.__dict__)
-        self.assertTrue('user_id' in self.place.__dict__)
-        self.assertTrue('name' in self.place.__dict__)
-        self.assertTrue('description' in self.place.__dict__)
-        self.assertTrue('number_rooms' in self.place.__dict__)
-        self.assertTrue('number_bathrooms' in self.place.__dict__)
-        self.assertTrue('max_guest' in self.place.__dict__)
-        self.assertTrue('price_by_night' in self.place.__dict__)
-        self.assertTrue('latitude' in self.place.__dict__)
-        self.assertTrue('longitude' in self.place.__dict__)
-        self.assertTrue('amenity_ids' in self.place.__dict__)
+        """Check if Place has attributes"""
+        attributes = [
+            'id', 'created_at', 'updated_at', 'city_id', 'user_id', 'name',
+            'description', 'number_rooms', 'number_bathrooms', 'max_guest',
+            'price_by_night', 'latitude', 'longitude', 'amenity_ids'
+        ]
+        for attribute in attributes:
+            self.assertTrue(hasattr(self.place, attribute))
 
     def test_is_subclass_Place(self):
-        """test if Place is subclass of Basemodel"""
-        self.assertTrue(issubclass(self.place.__class__, BaseModel), True)
+        """Test if Place is a subclass of BaseModel"""
+        self.assertTrue(issubclass(Place, BaseModel))
 
     def test_attribute_types_Place(self):
-        """test attribute type for Place"""
-        self.assertEqual(type(self.place.city_id), str)
-        self.assertEqual(type(self.place.user_id), str)
-        self.assertEqual(type(self.place.name), str)
-        self.assertEqual(type(self.place.description), str)
-        self.assertEqual(type(self.place.number_rooms), int)
-        self.assertEqual(type(self.place.number_bathrooms), int)
-        self.assertEqual(type(self.place.max_guest), int)
-        self.assertEqual(type(self.place.price_by_night), int)
-        self.assertEqual(type(self.place.latitude), float)
-        self.assertEqual(type(self.place.longitude), float)
-        self.assertEqual(type(self.place.amenity_ids), list)
+        """Test attribute types for Place"""
+        self.assertIsInstance(self.place.city_id, str)
+        self.assertIsInstance(self.place.user_id, str)
+        self.assertIsInstance(self.place.name, str)
+        self.assertIsInstance(self.place.description, str)
+        self.assertIsInstance(self.place.number_rooms, int)
+        self.assertIsInstance(self.place.number_bathrooms, int)
+        self.assertIsInstance(self.place.max_guest, int)
+        self.assertIsInstance(self.place.price_by_night, int)
+        self.assertIsInstance(self.place.latitude, float)
+        self.assertIsInstance(self.place.longitude, float)
+        self.assertIsInstance(self.place.amenity_ids, list)
 
     @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == 'db', 'DB')
     def test_save_Place(self):
-        """test if the save works"""
+        """Test if save works"""
+        original_created_at = self.place.created_at
         self.place.save()
-        self.assertNotEqual(self.place.created_at, self.place.updated_at)
+        self.assertNotEqual(original_created_at, self.place.updated_at)
 
     def test_to_dict_Place(self):
-        """test if dictionary works"""
-        self.assertEqual('to_dict' in dir(self.place), True)
+        """Test if to_dict method works"""
+        self.assertTrue('to_dict' in dir(self.place))
 
 
 if __name__ == "__main__":
