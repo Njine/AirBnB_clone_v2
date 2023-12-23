@@ -1,18 +1,35 @@
 #!/usr/bin/env bash
 # Sets up a web server for deployment of web_static.
 
-apt-get update
-apt-get install -y nginx
+update_package_lists() {
+    apt-get update
+}
 
-mkdir -p /data/web_static/releases/test/
-mkdir -p /data/web_static/shared/
-echo "Holberton School" > /data/web_static/releases/test/index.html
-ln -sf /data/web_static/releases/test/ /data/web_static/current
+install_nginx() {
+    apt-get install -y nginx
+}
 
-chown -R ubuntu /data/
-chgrp -R ubuntu /data/
+create_directories() {
+    mkdir -p /data/web_static/releases/test/
+    mkdir -p /data/web_static/shared/
+}
 
-printf %s "server {
+create_test_html() {
+    echo "Holberton School" > /data/web_static/releases/test/index.html
+}
+
+create_symbolic_link() {
+    ln -sf /data/web_static/releases/test/ /data/web_static/current
+}
+
+set_ownership_and_group() {
+    chown -R ubuntu /data/
+    chgrp -R ubuntu /data/
+}
+
+configure_nginx() {
+    cat <<EOF > /etc/nginx/sites-available/default
+server {
     listen 80 default_server;
     listen [::]:80 default_server;
     add_header X-Served-By $HOSTNAME;
@@ -30,9 +47,27 @@ printf %s "server {
 
     error_page 404 /404.html;
     location /404 {
-      root /var/www/html;
-      internal;
+        root /var/www/html;
+        internal;
     }
-}" > /etc/nginx/sites-available/default
+}
+EOF
+}
 
-service nginx restart
+restart_nginx() {
+    service nginx restart
+}
+
+main() {
+    update_package_lists
+    install_nginx
+    create_directories
+    create_test_html
+    create_symbolic_link
+    set_ownership_and_group
+    configure_nginx
+    restart_nginx
+}
+
+# Run the main function
+main

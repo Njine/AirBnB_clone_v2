@@ -1,13 +1,5 @@
-#!/usr/bin/python3
-"""This is the file storage class for AirBnB"""
 import json
 from models.base_model import BaseModel
-from models.user import User
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.place import Place
-from models.review import Review
 import shlex
 
 
@@ -26,15 +18,8 @@ class FileStorage:
         Return:
             returns a dictionary of __object
         """
-        dic = {}
         if cls:
-            dictionary = self.__objects
-            for key in dictionary:
-                partition = key.replace('.', ' ')
-                partition = shlex.split(partition)
-                if (partition[0] == cls.__name__):
-                    dic[key] = self.__objects[key]
-            return (dic)
+            return {key: value for key, value in self.__objects.items() if key.split('.')[0] == cls.__name__}
         else:
             return self.__objects
 
@@ -43,7 +28,7 @@ class FileStorage:
         Args:
             obj: given object
         """
-        if obj:
+        if isinstance(obj, BaseModel):
             key = "{}.{}".format(type(obj).__name__, obj.id)
             self.__objects[key] = obj
 
@@ -61,18 +46,20 @@ class FileStorage:
         """
         try:
             with open(self.__file_path, 'r', encoding="UTF-8") as f:
-                for key, value in (json.load(f)).items():
-                    value = eval(value["__class__"])(**value)
-                    self.__objects[key] = value
-        except FileNotFoundError:
+                loaded_data = json.load(f)
+                for key, value in loaded_data.items():
+                    class_name = value["__class__"]
+                    obj = globals()[class_name](**value)
+                    self.__objects[key] = obj
+        except (FileNotFoundError, json.JSONDecodeError):
             pass
 
     def delete(self, obj=None):
         """ delete an existing element
         """
-        if obj:
+        if obj and isinstance(obj, BaseModel):
             key = "{}.{}".format(type(obj).__name__, obj.id)
-            del self.__objects[key]
+            self.__objects.pop(key, None)
 
     def close(self):
         """ calls reload()
