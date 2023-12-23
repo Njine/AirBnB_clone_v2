@@ -1,96 +1,66 @@
 #!/usr/bin/python3
+"""This module defines a class to manage file storage for hbnb clone"""
 import json
-import shlex  # Import shlex module for string splitting
-
-from models.base_model import BaseModel
-from models.user import User
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.place import Place
-from models.review import Review
-
 
 class FileStorage:
-    """This class serializes instances to a JSON file and
-    deserializes JSON file to instances
-    Attributes:
-        __file_path: path to the JSON file
-        __objects: objects will be stored
-    """
-    def __init__(self, file_path="file.json"):
-        """Initialize FileStorage with a file path."""
-        self.__file_path = file_path
-        self.__objects = {}
+    _file_path = 'file.json'
 
-    # Map class names to corresponding classes
-    CLASSES = {
-        'BaseModel': BaseModel,
-        'User': User,
-        'State': State,
-        'City': City,
-        'Amenity': Amenity,
-        'Place': Place,
-        'Review': Review,
-    }
+    def __init__(self):
+        self._objects = {}  # Dictionary to store objects
 
     def all(self, cls=None):
-        """returns a dictionary
-        Return:
-            returns a dictionary of __object
         """
-        dic = {}
-        if cls:
-            for key in self.__objects:
-                partition = key.replace('.', ' ')
-                partition = shlex.split(partition)
-                if partition and partition[0] == cls.__name__:
-                    dic[key] = self.__objects[key]
-            return dic
-        else:
-            return self.__objects
+        Retrieve all objects or objects of a specific class.
+
+        Args:
+            cls (class, optional): The class type to filter objects. Defaults to None.
+
+        Returns:
+            dict: Dictionary of objects.
+        """
+        if cls is None:
+            return self._objects
+        cls_name = cls.__name__
+        return {key: obj for key, obj in self._objects.items() if key.split('.')[0] == cls_name}
 
     def new(self, obj):
-        """sets __object to given obj
-        Args:
-            obj: given object
         """
-        if obj:
-            key = "{}.{}".format(type(obj).__name__, obj.id)
-            self.__objects[key] = obj
+        Add a new object to storage.
+
+        Args:
+            obj: The object to be added.
+        """
+        key = f"{obj.__class__.__name__}.{obj.id}"
+        self._objects[key] = obj
 
     def save(self):
-        """serialize the file path to JSON file path
         """
-        my_dict = {}
-        for key, value in self.__objects.items():
-            my_dict[key] = value.to_dict()
-        with open(self.__file_path, 'w', encoding="UTF-8") as f:
-            json.dump(my_dict, f)
+        Save objects to a JSON file.
+        """
+        with open(FileStorage._file_path, 'w') as f:
+            # Serialize objects to JSON
+            serialized_objects = {key: obj.to_dict() for key, obj in self._objects.items()}
+            json.dump(serialized_objects, f)
 
     def reload(self):
-        """serialize the file path to JSON file path
+        """
+        Load objects from a JSON file.
         """
         try:
-            with open(self.__file_path, 'r', encoding="UTF-8") as f:
-                json_dict = json.load(f)
-                for key, value in json_dict.items():
-                    class_name = value.get('__class__')
-                    if class_name in self.CLASSES:
-                        cls = self.CLASSES[class_name]
-                        instance = cls(**value)
-                        self.__objects[key] = instance
+            with open(FileStorage._file_path, 'r') as f:
+                # Deserialize objects from JSON
+                serialized_objects = json.load(f)
+                self._objects = {key: classes[val['__class__']](**val) for key, val in serialized_objects.items()}
         except FileNotFoundError:
-            print(f"File {self.__file_path} not found. Creating a new one.")
+            print("File not found. Skipping reload.")
 
     def delete(self, obj=None):
-        """ delete an existing element
+        """
+        Delete the specified object from storage.
+
+        Args:
+            obj: The object to be deleted.
         """
         if obj:
-            key = "{}.{}".format(type(obj).__name__, obj.id)
-            del self.__objects[key]
-
-    def close(self):
-        """ calls reload()
-        """
-        self.reload()
+            obj_key = f"{obj.__class__.__name__}.{obj.id}"
+            self._objects.pop(obj_key, None)
