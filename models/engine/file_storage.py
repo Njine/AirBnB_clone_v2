@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 import json
+import shlex  # Import shlex module for string splitting
+
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -8,6 +10,7 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 
+
 class FileStorage:
     """This class serializes instances to a JSON file and
     deserializes JSON file to instances
@@ -15,8 +18,10 @@ class FileStorage:
         __file_path: path to the JSON file
         __objects: objects will be stored
     """
-    __file_path = "file.json"
-    __objects = {}
+    def __init__(self, file_path="file.json"):
+        """Initialize FileStorage with a file path."""
+        self.__file_path = file_path
+        self.__objects = {}
 
     # Map class names to corresponding classes
     CLASSES = {
@@ -36,8 +41,7 @@ class FileStorage:
         """
         dic = {}
         if cls:
-            dictionary = self.__objects
-            for key in dictionary:
+            for key in self.__objects:
                 partition = key.replace('.', ' ')
                 partition = shlex.split(partition)
                 if partition and partition[0] == cls.__name__:
@@ -77,7 +81,7 @@ class FileStorage:
                         instance = cls(**value)
                         self.__objects[key] = instance
         except FileNotFoundError:
-            pass
+            print(f"File {self.__file_path} not found. Creating a new one.")
 
     def delete(self, obj=None):
         """ delete an existing element
