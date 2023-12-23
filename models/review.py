@@ -1,11 +1,9 @@
 #!/usr/bin/python3
-"""This is review class"""
-from sqlalchemy import Column, Integer, String, ForeignKey, Float
+"""This is the review class"""
 from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
+from sqlalchemy import Column, Integer, String, ForeignKey, Float
 
-
-# Other imports and code here
 
 class Review(BaseModel, Base):
     """This is the class for Review
