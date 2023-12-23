@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 """This is the state class"""
-from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-import models
 from models.base_model import BaseModel, Base
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String
+import models
 from models.city import City
 import shlex
 
@@ -32,5 +32,4 @@ class State(BaseModel, Base):
         for elem in lista:
             if (elem.state_id == self.id):
                 result.append(elem)
-        return result
-    
+        return (result)
