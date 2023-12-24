@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import json
-import shlex  # Import shlex module for string splitting
-
+import shlex
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -10,7 +9,6 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 
-
 class FileStorage:
     """This class serializes instances to a JSON file and
     deserializes JSON file to instances
@@ -18,10 +16,8 @@ class FileStorage:
         __file_path: path to the JSON file
         __objects: objects will be stored
     """
-    def __init__(self, file_path="file.json"):
-        """Initialize FileStorage with a file path."""
-        self.__file_path = file_path
-        self.__objects = {}
+    __file_path = "file.json"
+    __objects = {}
 
     # Map class names to corresponding classes
     CLASSES = {
@@ -35,17 +31,15 @@ class FileStorage:
     }
 
     def all(self, cls=None):
-        """Returns a dictionary of objects filtered by class.
+        """Returns a dictionary.
         
-        Args:
-            cls (type): Class type for filtering objects.
-            
-        Returns:
-            dict: Dictionary of objects.
+        Return:
+            Returns a dictionary of __object.
         """
         dic = {}
         if cls:
-            for key in self.__objects:
+            dictionary = self.__objects
+            for key in dictionary:
                 partition = key.replace('.', ' ')
                 partition = shlex.split(partition)
                 if partition and partition[0] == cls.__name__:
@@ -55,7 +49,7 @@ class FileStorage:
             return self.__objects
 
     def new(self, obj):
-        """Sets __objects to given obj.
+        """Sets __object to given obj.
         
         Args:
             obj: Given object.
@@ -65,13 +59,13 @@ class FileStorage:
             self.__objects[key] = obj
 
     def save(self):
-        """Serialize instances to the JSON file."""
+        """Serialize the file path to JSON file path."""
         my_dict = {key: value.to_dict() for key, value in self.__objects.items()}
         with open(self.__file_path, 'w', encoding="UTF-8") as f:
             json.dump(my_dict, f)
 
     def reload(self):
-        """Deserialize JSON file to instances."""
+        """Serialize the file path to JSON file path."""
         try:
             with open(self.__file_path, 'r', encoding="UTF-8") as f:
                 json_dict = json.load(f)
@@ -82,7 +76,7 @@ class FileStorage:
                         instance = cls(**value)
                         self.__objects[key] = instance
         except FileNotFoundError:
-            print(f"File {self.__file_path} not found. Creating a new one.")
+            pass
 
     def delete(self, obj=None):
         """Delete an existing element."""
@@ -91,5 +85,5 @@ class FileStorage:
             del self.__objects[key]
 
     def close(self):
-        """Calls reload."""
+        """Calls reload()."""
         self.reload()
