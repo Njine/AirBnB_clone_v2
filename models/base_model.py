@@ -39,13 +39,13 @@ class BaseModel:
         return self.__str__()
 
     def save(self):
-        """Updates the public instance attribute updated_at to the current time"""
+        """Update public instance attribute updated_at to current time."""
         self.updated_at = datetime.now()
         models.storage.new(self)
         models.storage.save()
 
     def to_dict(self):
-        """Creates a dictionary of the class and returns it"""
+        """Create a dictionary of class and returns it."""
         my_dict = dict(self.__dict__)
         my_dict["__class__"] = str(type(self).__name__)
         my_dict["created_at"] = self.created_at.isoformat()
@@ -54,5 +54,5 @@ class BaseModel:
         return my_dict
 
     def delete(self):
-        """Deletes the object"""
+        """Delete object"""
         models.storage.delete(self)
