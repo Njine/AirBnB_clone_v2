@@ -18,7 +18,7 @@ def do_deploy(archive_path):
         file_name = archive_path.split("/")[-1]
         no_extension = file_name.split(".")[0]
         path = "/data/web_static/releases/"
-        
+
         # Upload the archive
         put(archive_path, '/tmp/')
 
@@ -45,4 +45,3 @@ def do_deploy(archive_path):
     except Exception as e:
         print(e)
         return False
-
