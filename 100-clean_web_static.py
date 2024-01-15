@@ -1,32 +1,36 @@
 #!/usr/bin/python3
-"""
-Deletes out-of-date archives
-Usage:
-fab -f 100-clean_web_static.py do_clean:number=2
-"""
-
+"""Function that deploys"""
+from fabric.api import env, local, run
 import os
-from fabric.api import env, lcd, cd, local, run
 
-env.hosts = ['100.25.130.218', '34.239.253.248']
+env.hosts = ['35.231.33.237', '34.74.155.163']
+env.user = "ubuntu"
 
 
 def do_clean(number=0):
     """
-    Delete out-of-date archives.
+    Cleans up outdated archives on both local and remote servers.
 
-    Args:
-        number (int): The number of archives to keep.
-                      If 0 or 1, keeps only the most recent archive.
-                      If 2, keeps the most and second-most recent archives etc
+    Parameters:
+    - number (int): The number of archives to keep. Defaults to 0.
     """
-    number = max(1, int(number))
+    number = int(number)
 
-    with lcd("versions"):
-        archives_local = sorted(os.listdir("."))
-        [local("rm ./{}".format(a)) for a in archives_local[:-number]]
+    if number == 0:
+        number = 2
+    else:
+        number += 1
 
-    with cd("/data/web_static/releases"):
-        archives_remote = run("ls -tr").split()
-        archives_remote = [a for a in archives_remote if "web_static_" in a]
-        [run("rm -rf ./{}".format(a)) for a in archives_remote[:-number]]
+    local_path = 'versions'
+    local_command = (
+        'cd {} ; ls -t | tail -n +{} | xargs rm -rf'
+        .format(local_path, number)
+    )
+    local(local_command)
+
+    remote_path = '/data/web_static/releases'
+    remote_command = (
+        'cd {} ; ls -t | tail -n +{} | xargs rm -rf'
+        .format(remote_path, number)
+    )
+    run(remote_command)
