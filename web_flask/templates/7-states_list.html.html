@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>HBNB</title>
+</head>
+<body>
+    <h1>{{ Table }}</h1>
+    <ul>
+        {% for id, name in items.items() | sort %}
+        <li><strong>{{ name }}</strong>: {{ id }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
